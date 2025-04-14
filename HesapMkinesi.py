@@ -1,30 +1,56 @@
-import tkinter as tk
+import customtkinter as ctk
 
-# Hesap makinesi işlemlerini yapan fonksiyon
+ctk.set_appearance_mode("light")  # veya "dark"
+ctk.set_default_color_theme("blue")  # renk teması
+
+# Ana pencere
+app = ctk.CTk()
+app.geometry("300x400")
+app.title("Modern Hesap Makinesi")
+
+# Giriş ekranı
+giris = ctk.CTkEntry(app, font=("Arial", 24), justify="right", width=250, height=50)
+giris.pack(pady=20)
+
+# Buton fonksiyonu
+def tikla(deger):
+    mevcut = giris.get()
+    giris.delete(0, ctk.END)
+    giris.insert(0, mevcut + str(deger))
+
+def temizle():
+    giris.delete(0, ctk.END)
+
 def hesapla():
     try:
         sonuc = eval(giris.get())
-        cikti_label.config(text=f"Sonuç: {sonuc}")
+        giris.delete(0, ctk.END)
+        giris.insert(0, str(sonuc))
     except:
-        cikti_label.config(text="Hata! Geçersiz ifade.")
+        giris.delete(0, ctk.END)
+        giris.insert(0, "HATA")
 
-# Temel arayüz oluşturma
-pencere = tk.Tk()
-pencere.title("Hesap Makinesi")
-pencere.geometry("300x200")
-pencere.resizable(False, False)
+# Tuşlar
+butonlar = [
+    ['7', '8', '9', '/'],
+    ['4', '5', '6', '*'],
+    ['1', '2', '3', '-'],
+    ['0', '.', '=', '+']
+]
 
-# Giriş alanı
-giris = tk.Entry(pencere, font=("Arial", 16), justify="right")
-giris.pack(padx=10, pady=10, fill="x")
+# Tuşları yerleştir
+for satir in butonlar:
+    frame = ctk.CTkFrame(app)
+    frame.pack(pady=5)
+    for btn in satir:
+        if btn == "=":
+            b = ctk.CTkButton(frame, text=btn, width=50, command=hesapla)
+        else:
+            b = ctk.CTkButton(frame, text=btn, width=50, command=lambda x=btn: tikla(x))
+        b.pack(side="left", padx=5)
 
-# Hesapla butonu
-hesapla_btn = tk.Button(pencere, text="Hesapla", font=("Arial", 14), command=hesapla)
-hesapla_btn.pack(pady=5)
+# Temizle butonu
+temizle_btn = ctk.CTkButton(app, text="Temizle", command=temizle)
+temizle_btn.pack(pady=10)
 
-# Sonuç etiketi
-cikti_label = tk.Label(pencere, text="Sonuç: ", font=("Arial", 14))
-cikti_label.pack(pady=10)
-
-# Ana döngü
-pencere.mainloop()
+app.mainloop()
