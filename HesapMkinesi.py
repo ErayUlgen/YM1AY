@@ -1,36 +1,63 @@
 import customtkinter as ctk
 
-ctk.set_appearance_mode("light")  # veya "dark"
-ctk.set_default_color_theme("blue")  # renk teması
+ctk.set_appearance_mode("light")
+ctk.set_default_color_theme("green")
 
-# Ana pencere
 app = ctk.CTk()
-app.geometry("300x400")
-app.title("Modern Hesap Makinesi")
+app.geometry("350x550")
+app.title("🧮 Modern Hesap Makinesi")
+app.configure(fg_color="#ecf0f3")
 
-# Giriş ekranı
-giris = ctk.CTkEntry(app, font=("Arial", 24), justify="right", width=250, height=50)
-giris.pack(pady=20)
+# Giriş alanı
+giris = ctk.CTkEntry(app, font=("Helvetica", 28), justify="right", width=300, height=60,
+                     corner_radius=15, border_width=2)
+giris.pack(pady=30)
 
-# Buton fonksiyonu
+# Buton işlevleri
 def tikla(deger):
-    mevcut = giris.get()
-    giris.delete(0, ctk.END)
-    giris.insert(0, mevcut + str(deger))
+    giris.insert("end", str(deger))
 
 def temizle():
-    giris.delete(0, ctk.END)
+    giris.delete(0, "end")
 
 def hesapla():
     try:
         sonuc = eval(giris.get())
-        giris.delete(0, ctk.END)
+        giris.delete(0, "end")
         giris.insert(0, str(sonuc))
     except:
-        giris.delete(0, ctk.END)
+        giris.delete(0, "end")
         giris.insert(0, "HATA")
 
-# Tuşlar
+def geri_sil():
+    giris.delete(len(giris.get()) - 1, "end")
+
+def isaret_degistir():
+    try:
+        mevcut = giris.get()
+        if mevcut:
+            sonuc = eval(f"-1*({mevcut})")
+            giris.delete(0, "end")
+            giris.insert(0, str(sonuc))
+    except:
+        pass
+
+# Tuş oluşturucu
+def olustur_buton(parent, text, command, genislik=65):
+    return ctk.CTkButton(parent, text=text, font=("Helvetica", 20), width=genislik, height=65,
+                         corner_radius=32, fg_color="#ffffff", hover_color="#d1d8e0",
+                         text_color="#2c3e50", command=command)
+
+# Yardımcı tuşlar
+yardimci_frame = ctk.CTkFrame(app, fg_color="transparent")
+yardimci_frame.pack(pady=5)
+
+olustur_buton(yardimci_frame, "C", temizle).pack(side="left", padx=5)
+olustur_buton(yardimci_frame, "⌫", geri_sil).pack(side="left", padx=5)
+olustur_buton(yardimci_frame, "+/-", isaret_degistir).pack(side="left", padx=5)
+olustur_buton(yardimci_frame, "%", lambda: tikla('%')).pack(side="left", padx=5)
+
+# Ana tuşlar
 butonlar = [
     ['7', '8', '9', '/'],
     ['4', '5', '6', '*'],
@@ -38,19 +65,14 @@ butonlar = [
     ['0', '.', '=', '+']
 ]
 
-# Tuşları yerleştir
 for satir in butonlar:
-    frame = ctk.CTkFrame(app)
+    frame = ctk.CTkFrame(app, fg_color="transparent")
     frame.pack(pady=5)
     for btn in satir:
         if btn == "=":
-            b = ctk.CTkButton(frame, text=btn, width=50, command=hesapla)
+            b = olustur_buton(frame, btn, hesapla)
         else:
-            b = ctk.CTkButton(frame, text=btn, width=50, command=lambda x=btn: tikla(x))
+            b = olustur_buton(frame, btn, lambda x=btn: tikla(x))
         b.pack(side="left", padx=5)
-
-# Temizle butonu
-temizle_btn = ctk.CTkButton(app, text="Temizle", command=temizle)
-temizle_btn.pack(pady=10)
 
 app.mainloop()
