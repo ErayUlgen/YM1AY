@@ -13,14 +13,14 @@ giris = ctk.CTkEntry(app, font=("Helvetica", 28), justify="right", width=300, he
                      corner_radius=15, border_width=2)
 giris.pack(pady=30)
 
-# Buton işlevleri
+# İşlevler
 def tikla(deger):
     giris.insert("end", str(deger))
 
 def temizle():
     giris.delete(0, "end")
 
-def hesapla():
+def hesapla(event=None):  # 'event' parametresi klavye için eklendi
     try:
         sonuc = eval(giris.get())
         giris.delete(0, "end")
@@ -29,7 +29,7 @@ def hesapla():
         giris.delete(0, "end")
         giris.insert(0, "HATA")
 
-def geri_sil():
+def geri_sil(event=None):
     giris.delete(len(giris.get()) - 1, "end")
 
 def isaret_degistir():
@@ -41,6 +41,11 @@ def isaret_degistir():
             giris.insert(0, str(sonuc))
     except:
         pass
+
+# Klavye bağlama
+app.bind("<Return>", hesapla)       # Enter = hesapla
+app.bind("<BackSpace>", geri_sil)   # Backspace = sil
+app.bind("<Escape>", lambda e: temizle())  # Escape = temizle
 
 # Tuş oluşturucu
 def olustur_buton(parent, text, command, genislik=65):
