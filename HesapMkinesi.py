@@ -6,11 +6,11 @@ ctk.set_default_color_theme("green")
 app = ctk.CTk()
 app.geometry("350x550")
 app.title("🧮 Modern Hesap Makinesi")
-app.configure(fg_color="#ecf0f3")
+app.configure(fg_color="#e7f0fd")  # Açık mavi arka plan
 
 # Giriş alanı
 giris = ctk.CTkEntry(app, font=("Helvetica", 28), justify="right", width=300, height=60,
-                     corner_radius=15, border_width=2)
+                     corner_radius=15, border_width=2, fg_color="#ffffff", text_color="#2c3e50")
 giris.pack(pady=30)
 
 # İşlevler
@@ -20,7 +20,7 @@ def tikla(deger):
 def temizle():
     giris.delete(0, "end")
 
-def hesapla(event=None):  # 'event' parametresi klavye için eklendi
+def hesapla(event=None):
     try:
         sonuc = eval(giris.get())
         giris.delete(0, "end")
@@ -43,24 +43,27 @@ def isaret_degistir():
         pass
 
 # Klavye bağlama
-app.bind("<Return>", hesapla)       # Enter = hesapla
-app.bind("<BackSpace>", geri_sil)   # Backspace = sil
-app.bind("<Escape>", lambda e: temizle())  # Escape = temizle
+app.bind("<Return>", hesapla)
+app.bind("<BackSpace>", geri_sil)
+app.bind("<Escape>", lambda e: temizle())
 
 # Tuş oluşturucu
-def olustur_buton(parent, text, command, genislik=65):
+def olustur_buton(parent, text, command, genislik=65, bg="#ffffff", hover="#e0e0e0", yazirenk="#333333"):
     return ctk.CTkButton(parent, text=text, font=("Helvetica", 20), width=genislik, height=65,
-                         corner_radius=32, fg_color="#ffffff", hover_color="#d1d8e0",
-                         text_color="#2c3e50", command=command)
+                         corner_radius=32, fg_color=bg, hover_color=hover,
+                         text_color=yazirenk, command=command)
 
 # Yardımcı tuşlar
 yardimci_frame = ctk.CTkFrame(app, fg_color="transparent")
 yardimci_frame.pack(pady=5)
 
-olustur_buton(yardimci_frame, "C", temizle).pack(side="left", padx=5)
-olustur_buton(yardimci_frame, "⌫", geri_sil).pack(side="left", padx=5)
-olustur_buton(yardimci_frame, "+/-", isaret_degistir).pack(side="left", padx=5)
-olustur_buton(yardimci_frame, "%", lambda: tikla('%')).pack(side="left", padx=5)
+yardimci_renk = "#f0c4c4"
+hover_yardimci = "#e0a5a5"
+yazi_yardimci = "#5a2c2c"
+olustur_buton(yardimci_frame, "C", temizle, bg=yardimci_renk, hover=hover_yardimci, yazirenk=yazi_yardimci).pack(side="left", padx=5)
+olustur_buton(yardimci_frame, "⌫", geri_sil, bg=yardimci_renk, hover=hover_yardimci, yazirenk=yazi_yardimci).pack(side="left", padx=5)
+olustur_buton(yardimci_frame, "+/-", isaret_degistir, bg=yardimci_renk, hover=hover_yardimci, yazirenk=yazi_yardimci).pack(side="left", padx=5)
+olustur_buton(yardimci_frame, "%", lambda: tikla('%'), bg=yardimci_renk, hover=hover_yardimci, yazirenk=yazi_yardimci).pack(side="left", padx=5)
 
 # Ana tuşlar
 butonlar = [
@@ -75,9 +78,14 @@ for satir in butonlar:
     frame.pack(pady=5)
     for btn in satir:
         if btn == "=":
-            b = olustur_buton(frame, btn, hesapla)
+            b = olustur_buton(frame, btn, hesapla,
+                              bg="#b8e0d2", hover="#9fd6c0", yazirenk="#204d40")
+        elif btn in ['+', '-', '*', '/']:
+            b = olustur_buton(frame, btn, lambda x=btn: tikla(x),
+                              bg="#d1d8f0", hover="#bcc6e0", yazirenk="#2f2f49")
         else:
-            b = olustur_buton(frame, btn, lambda x=btn: tikla(x))
+            b = olustur_buton(frame, btn, lambda x=btn: tikla(x),
+                              bg="#f7f1e5", hover="#e5dcd0", yazirenk="#3e3e3e")
         b.pack(side="left", padx=5)
 
 app.mainloop()
