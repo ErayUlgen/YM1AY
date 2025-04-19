@@ -4,11 +4,14 @@ import pygame
 # Pygame ses başlatma
 pygame.mixer.init()
 
+# Ses kontrolü
+ses_acik = True
 def tus_sesi_cal():
-    try:
-        pygame.mixer.Sound("click.wav").play()
-    except:
-        pass
+    if ses_acik:
+        try:
+            pygame.mixer.Sound("click.wav").play()
+        except:
+            pass
 
 ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("green")
@@ -19,6 +22,7 @@ app.title("🧮 Modern Hesap Makinesi")
 
 mevcut_tema = "light"
 tema_buton_text = ctk.StringVar(value="🌙 Tema")
+ses_buton_text = ctk.StringVar(value="🔊 Ses")
 
 temalar = {
     "light": {
@@ -49,6 +53,12 @@ def tema_degistir():
     tema_buton_text.set("☀️ Tema" if mevcut_tema == "dark" else "🌙 Tema")
     guncelle_tema()
 
+def ses_degistir():
+    global ses_acik
+    ses_acik = not ses_acik
+    ses_buton_text.set("🔇 Ses" if not ses_acik else "🔊 Ses")
+    tus_sesi_cal()
+
 def guncelle_tema():
     tema = temalar[mevcut_tema]
     app.configure(fg_color=tema["bg"])
@@ -61,9 +71,16 @@ giris = ctk.CTkEntry(app, font=("Helvetica", 28), justify="right", width=300, he
                      corner_radius=15, border_width=2)
 giris.pack(pady=15)
 
-tema_buton = ctk.CTkButton(app, textvariable=tema_buton_text, width=150,
+tema_frame = ctk.CTkFrame(app, fg_color="transparent")
+tema_frame.pack(pady=5)
+
+tema_buton = ctk.CTkButton(tema_frame, textvariable=tema_buton_text, width=150,
                            command=tema_degistir, fg_color="#cccccc", text_color="#000")
-tema_buton.pack(pady=5)
+tema_buton.pack(side="left", padx=5)
+
+ses_buton = ctk.CTkButton(tema_frame, textvariable=ses_buton_text, width=150,
+                          command=ses_degistir, fg_color="#cccccc", text_color="#000")
+ses_buton.pack(side="left", padx=5)
 
 def tikla(deger):
     tus_sesi_cal()
@@ -98,9 +115,31 @@ def isaret_degistir():
     except:
         pass
 
+# ⌨️ Klavye girişleri
+def klavye_girdisi(event):
+    tus = event.char
+    if tus in "0123456789":
+        tikla(tus)
+    elif tus in "+-*/.":
+        tikla(tus)
+    elif tus.lower() == "c":
+        temizle()
+    elif tus.lower() == "n":
+        isaret_degistir()
+    elif tus.lower() == "m":
+        tikla('%')
+    elif tus.lower() == "t":
+        tema_degistir()
+    elif tus.lower() == "s":
+        ses_degistir()
+    elif tus == "=" or tus == "\r":
+        hesapla()
+
+# 🎯 Klavye kısayollarını bağla
 app.bind("<Return>", hesapla)
 app.bind("<BackSpace>", geri_sil)
 app.bind("<Escape>", lambda e: temizle())
+app.bind("<Key>", klavye_girdisi)
 
 buton_referanslari = []
 
