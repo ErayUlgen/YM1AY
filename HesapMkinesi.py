@@ -1,28 +1,25 @@
 import customtkinter as ctk
 import pygame
 
-# Pygame ses başlatma
+# Ses başlatma
 pygame.mixer.init()
+ses_durum = True  # Başlangıçta ses açık
 
-# Ses kontrolü
-ses_acik = True
-def tus_sesi_cal():
-    if ses_acik:
-        try:
-            pygame.mixer.Sound("click.wav").play()
-        except:
-            pass
+# Hafıza
+memory = None
 
+# Tema ayarları
 ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("green")
 
 app = ctk.CTk()
-app.geometry("350x600")
-app.title("🧮 Modern Hesap Makinesi")
+app.geometry("350x700")
+app.title("🧲 Modern Hesap Makinesi")
 
 mevcut_tema = "light"
 tema_buton_text = ctk.StringVar(value="🌙 Tema")
 ses_buton_text = ctk.StringVar(value="🔊 Ses")
+hafiza_text = ctk.StringVar(value="")
 
 temalar = {
     "light": {
@@ -45,48 +42,54 @@ temalar = {
     }
 }
 
-def tema_degistir():
-    tus_sesi_cal()
+def tus_sesi_cal():
+    if ses_durum:
+        try:
+            pygame.mixer.Sound("click.wav").play()
+        except:
+            pass
+
+def tema_degistir(event=None):
     global mevcut_tema
+    tus_sesi_cal()
     mevcut_tema = "dark" if mevcut_tema == "light" else "light"
     ctk.set_appearance_mode(mevcut_tema)
     tema_buton_text.set("☀️ Tema" if mevcut_tema == "dark" else "🌙 Tema")
     guncelle_tema()
 
-def ses_degistir():
-    global ses_acik
-    ses_acik = not ses_acik
-    ses_buton_text.set("🔇 Ses" if not ses_acik else "🔊 Ses")
+def ses_degistir(event=None):
+    global ses_durum
+    ses_durum = not ses_durum
     tus_sesi_cal()
+    ses_buton_text.set("🔇 Ses" if not ses_durum else "🔊 Ses")
 
 def guncelle_tema():
     tema = temalar[mevcut_tema]
     app.configure(fg_color=tema["bg"])
     giris.configure(fg_color=tema["entry_bg"], text_color=tema["entry_text"])
+    hafiza_label.configure(text_color=tema["entry_text"])
     for btn, tur in buton_referanslari:
         renk = tema[tur]
         btn.configure(fg_color=renk[0], hover_color=renk[1], text_color=renk[2])
 
 giris = ctk.CTkEntry(app, font=("Helvetica", 28), justify="right", width=300, height=60,
                      corner_radius=15, border_width=2)
-giris.pack(pady=15)
+giris.pack(pady=10)
 
-tema_frame = ctk.CTkFrame(app, fg_color="transparent")
-tema_frame.pack(pady=5)
+hafiza_label = ctk.CTkLabel(app, textvariable=hafiza_text, font=("Helvetica", 14))
+hafiza_label.pack()
 
-tema_buton = ctk.CTkButton(tema_frame, textvariable=tema_buton_text, width=150,
-                           command=tema_degistir, fg_color="#cccccc", text_color="#000")
-tema_buton.pack(side="left", padx=5)
+ust_frame = ctk.CTkFrame(app, fg_color="transparent")
+ust_frame.pack(pady=5)
 
-ses_buton = ctk.CTkButton(tema_frame, textvariable=ses_buton_text, width=150,
-                          command=ses_degistir, fg_color="#cccccc", text_color="#000")
-ses_buton.pack(side="left", padx=5)
+ctk.CTkButton(ust_frame, textvariable=tema_buton_text, width=150, command=tema_degistir).pack(side="left", padx=5)
+ctk.CTkButton(ust_frame, textvariable=ses_buton_text, width=150, command=ses_degistir).pack(side="left", padx=5)
 
 def tikla(deger):
     tus_sesi_cal()
     giris.insert("end", str(deger))
 
-def temizle():
+def temizle(event=None):
     tus_sesi_cal()
     giris.delete(0, "end")
 
@@ -115,30 +118,59 @@ def isaret_degistir():
     except:
         pass
 
-# ⌨️ Klavye girişleri
+def hafizaya_ekle():
+    global memory
+    tus_sesi_cal()
+    try:
+        memory = eval(giris.get())
+        hafiza_text.set(f"Hafıza: {memory}")
+    except:
+        memory = None
+        hafiza_text.set("")
+
+def hafizayi_getir():
+    tus_sesi_cal()
+    if memory is not None:
+        giris.insert("end", str(memory))
+
+def hafizayi_temizle():
+    global memory
+    tus_sesi_cal()
+    memory = None
+    hafiza_text.set("")
+
 def klavye_girdisi(event):
     tus = event.char
     if tus in "0123456789":
         tikla(tus)
-    elif tus in "+-*/.":
-        tikla(tus)
+    elif tus == ".":
+        tikla(".")
+    elif tus == "+":
+        tikla("+")
+    elif tus == "-":
+        tikla("-")
+    elif tus == "*":
+        tikla("*")
+    elif tus == "/":
+        tikla("/")
     elif tus.lower() == "c":
         temizle()
     elif tus.lower() == "n":
         isaret_degistir()
     elif tus.lower() == "m":
-        tikla('%')
+        hafizaya_ekle()
+    elif tus.lower() == "r":
+        hafizayi_getir()
+    elif tus.lower() == "x":
+        hafizayi_temizle()
     elif tus.lower() == "t":
         tema_degistir()
     elif tus.lower() == "s":
         ses_degistir()
-    elif tus == "=" or tus == "\r":
-        hesapla()
 
-# 🎯 Klavye kısayollarını bağla
 app.bind("<Return>", hesapla)
 app.bind("<BackSpace>", geri_sil)
-app.bind("<Escape>", lambda e: temizle())
+app.bind("<Escape>", temizle)
 app.bind("<Key>", klavye_girdisi)
 
 buton_referanslari = []
@@ -158,6 +190,13 @@ olustur_buton(yardimci_frame, "C", temizle, tur="yardimci").pack(side="left", pa
 olustur_buton(yardimci_frame, "⌫", geri_sil, tur="yardimci").pack(side="left", padx=5)
 olustur_buton(yardimci_frame, "+/-", isaret_degistir, tur="yardimci").pack(side="left", padx=5)
 olustur_buton(yardimci_frame, "%", lambda: tikla('%'), tur="yardimci").pack(side="left", padx=5)
+
+hafiza_frame = ctk.CTkFrame(app, fg_color="transparent")
+hafiza_frame.pack(pady=5)
+
+olustur_buton(hafiza_frame, "M+", hafizaya_ekle, tur="yardimci").pack(side="left", padx=5)
+olustur_buton(hafiza_frame, "MR", hafizayi_getir, tur="yardimci").pack(side="left", padx=5)
+olustur_buton(hafiza_frame, "MC", hafizayi_temizle, tur="yardimci").pack(side="left", padx=5)
 
 butonlar = [
     ['7', '8', '9', '/'],
