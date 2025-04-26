@@ -205,11 +205,21 @@ app.bind("<Key>", klavye_girdisi)
 
 buton_referanslari = []
 
+# --- Buton Efekti ---
+def buton_animasyonu(buton):
+    def kucult(e):
+        buton.configure(width=buton.cget("width")-5, height=buton.cget("height")-5)
+    def eski_boyut(e):
+        buton.configure(width=buton.cget("width")+5, height=buton.cget("height")+5)
+    buton.bind("<ButtonPress-1>", kucult)
+    buton.bind("<ButtonRelease-1>", eski_boyut)
+
 def olustur_buton(parent, text, command, tur="sayi", genislik=65):
     renk = temalar[mevcut_tema_index][tur]
     btn = ctk.CTkButton(parent, text=text, font=("Helvetica", 20), width=genislik, height=65,
                         corner_radius=32, fg_color=renk[0], hover_color=renk[1],
                         text_color=renk[2], command=command)
+    buton_animasyonu(btn)
     buton_referanslari.append((btn, tur))
     return btn
 
