@@ -1,12 +1,12 @@
 import customtkinter as ctk
 import pygame
+import math
 
 # Ses başlatma
 pygame.mixer.init()
 ses_durum = True
-
-# Hafıza
 memory = None
+bilimsel_aktif = False
 
 # Tema ayarları
 ctk.set_appearance_mode("light")
@@ -16,10 +16,10 @@ app = ctk.CTk()
 app.geometry("350x700")
 app.title("🧲 Modern Hesap Makinesi")
 
-# --- Tema Değişkenleri ---
 mevcut_tema_index = 0
 tema_buton_text = ctk.StringVar(value="🌙 Tema")
 ses_buton_text = ctk.StringVar(value="🔊 Ses")
+bilimsel_buton_text = ctk.StringVar(value="🔬 Bilimsel")
 hafiza_text = ctk.StringVar(value="")
 
 temalar = [
@@ -76,16 +76,16 @@ def tus_sesi_cal():
         except:
             pass
 
-def tema_degistir(event=None):
+def tema_degistir():
     global mevcut_tema_index
     tus_sesi_cal()
     mevcut_tema_index = (mevcut_tema_index + 1) % len(temalar)
-    secilen_tema = temalar[mevcut_tema_index]
-    ctk.set_appearance_mode(secilen_tema["ad"] if secilen_tema["ad"] in ["light", "dark"] else "light")
-    tema_buton_text.set(f"{secilen_tema['ikon']} Tema")
+    secilen = temalar[mevcut_tema_index]
+    ctk.set_appearance_mode(secilen["ad"] if secilen["ad"] in ["light", "dark"] else "light")
+    tema_buton_text.set(f"{secilen['ikon']} Tema")
     guncelle_tema()
 
-def ses_degistir(event=None):
+def ses_degistir():
     global ses_durum
     ses_durum = not ses_durum
     tus_sesi_cal()
@@ -100,26 +100,11 @@ def guncelle_tema():
         renk = tema[tur]
         btn.configure(fg_color=renk[0], hover_color=renk[1], text_color=renk[2])
 
-# --- UI Elemanları ---
-giris = ctk.CTkEntry(app, font=("Helvetica", 28), justify="right", width=300, height=60,
-                     corner_radius=15, border_width=2)
-giris.pack(pady=10)
-
-hafiza_label = ctk.CTkLabel(app, textvariable=hafiza_text, font=("Helvetica", 14))
-hafiza_label.pack()
-
-ust_frame = ctk.CTkFrame(app, fg_color="transparent")
-ust_frame.pack(pady=5)
-
-ctk.CTkButton(ust_frame, textvariable=tema_buton_text, width=150, command=tema_degistir).pack(side="left", padx=5)
-ctk.CTkButton(ust_frame, textvariable=ses_buton_text, width=150, command=ses_degistir).pack(side="left", padx=5)
-
-# --- Fonksiyonlar ---
 def tikla(deger):
     tus_sesi_cal()
     giris.insert("end", str(deger))
 
-def temizle(event=None):
+def temizle():
     tus_sesi_cal()
     giris.delete(0, "end")
 
@@ -133,7 +118,7 @@ def hesapla(event=None):
         giris.delete(0, "end")
         giris.insert(0, "HATA")
 
-def geri_sil(event=None):
+def geri_sil():
     tus_sesi_cal()
     giris.delete(len(giris.get()) - 1, "end")
 
@@ -169,20 +154,47 @@ def hafizayi_temizle():
     memory = None
     hafiza_text.set("")
 
+def karekok():
+    tus_sesi_cal()
+    try:
+        sonuc = math.sqrt(eval(giris.get()))
+        giris.delete(0, "end")
+        giris.insert(0, str(sonuc))
+    except:
+        giris.delete(0, "end")
+        giris.insert(0, "HATA")
+
+def faktoriyel():
+    tus_sesi_cal()
+    try:
+        sonuc = math.factorial(int(eval(giris.get())))
+        giris.delete(0, "end")
+        giris.insert(0, str(sonuc))
+    except:
+        giris.delete(0, "end")
+        giris.insert(0, "HATA")
+
+def bilimsel_mod_degistir():
+    global bilimsel_aktif
+    tus_sesi_cal()
+    bilimsel_aktif = not bilimsel_aktif
+    if bilimsel_aktif:
+        bilimsel_frame.pack(pady=5)
+        bilimsel_buton_text.set("🧮 Kapat")
+        app.geometry("350x760")
+    else:
+        bilimsel_frame.pack_forget()
+        bilimsel_buton_text.set("🔬 Bilimsel")
+        app.geometry("350x700")
+
 def klavye_girdisi(event):
     tus = event.char
     if tus in "0123456789":
         tikla(tus)
     elif tus == ".":
         tikla(".")
-    elif tus == "+":
-        tikla("+")
-    elif tus == "-":
-        tikla("-")
-    elif tus == "*":
-        tikla("*")
-    elif tus == "/":
-        tikla("/")
+    elif tus in "+-*/":
+        tikla(tus)
     elif tus.lower() == "c":
         temizle()
     elif tus.lower() == "n":
@@ -199,32 +211,34 @@ def klavye_girdisi(event):
         ses_degistir()
 
 app.bind("<Return>", hesapla)
-app.bind("<BackSpace>", geri_sil)
-app.bind("<Escape>", temizle)
+app.bind("<BackSpace>", lambda e: geri_sil())
+app.bind("<Escape>", lambda e: temizle())
 app.bind("<Key>", klavye_girdisi)
+
+giris = ctk.CTkEntry(app, font=("Helvetica", 28), justify="right", width=300, height=60, corner_radius=15, border_width=2)
+giris.pack(pady=10)
+
+hafiza_label = ctk.CTkLabel(app, textvariable=hafiza_text, font=("Helvetica", 14))
+hafiza_label.pack()
+
+ust_frame = ctk.CTkFrame(app, fg_color="transparent")
+ust_frame.pack(pady=5)
+
+ctk.CTkButton(ust_frame, textvariable=tema_buton_text, width=100, command=tema_degistir).pack(side="left", padx=3)
+ctk.CTkButton(ust_frame, textvariable=ses_buton_text, width=100, command=ses_degistir).pack(side="left", padx=3)
+ctk.CTkButton(ust_frame, textvariable=bilimsel_buton_text, width=100, command=bilimsel_mod_degistir).pack(side="left", padx=3)
 
 buton_referanslari = []
 
-# --- Gelişmiş Buton Oluşturma ---
 def olustur_buton(parent, text, command, tur="sayi", genislik=65):
     renk = temalar[mevcut_tema_index][tur]
-
-    btn = ctk.CTkButton(
-        parent, 
-        text=text, 
-        font=("Helvetica", 20), 
-        width=genislik, 
-        height=65,
-        corner_radius=32,
-        fg_color=renk[0], 
-        hover_color=renk[1], 
-        text_color=renk[2],
-        command=command
-    )
+    btn = ctk.CTkButton(parent, text=text, font=("Helvetica", 20), width=genislik, height=65,
+                        corner_radius=32, fg_color=renk[0], hover_color=renk[1],
+                        text_color=renk[2], command=command)
 
     def on_press(event):
         btn.configure(fg_color=renk[1])
-        btn.configure(width=genislik-5, height=60)
+        btn.configure(width=genislik - 5, height=60)
 
     def on_release(event):
         btn.configure(fg_color=renk[0])
@@ -232,7 +246,6 @@ def olustur_buton(parent, text, command, tur="sayi", genislik=65):
 
     btn.bind("<ButtonPress-1>", on_press)
     btn.bind("<ButtonRelease-1>", on_release)
-
     buton_referanslari.append((btn, tur))
     return btn
 
@@ -252,7 +265,12 @@ olustur_buton(hafiza_frame, "M+", hafizaya_ekle, tur="yardimci").pack(side="left
 olustur_buton(hafiza_frame, "MR", hafizayi_getir, tur="yardimci").pack(side="left", padx=5)
 olustur_buton(hafiza_frame, "MC", hafizayi_temizle, tur="yardimci").pack(side="left", padx=5)
 
-# Sayı ve İşlem Butonları
+# Bilimsel Frame
+bilimsel_frame = ctk.CTkFrame(app, fg_color="transparent")
+olustur_buton(bilimsel_frame, "√", karekok, tur="operator").pack(side="left", padx=5)
+olustur_buton(bilimsel_frame, "n!", faktoriyel, tur="operator").pack(side="left", padx=5)
+
+# Sayı ve İşlem Tuşları
 butonlar = [
     ['7', '8', '9', '/'],
     ['4', '5', '6', '*'],
