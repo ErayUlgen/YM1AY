@@ -157,17 +157,42 @@ def hafizayi_temizle():
 def karekok():
     tus_sesi_cal()
     try:
-        sonuc = math.sqrt(eval(giris.get()))
+        ifade = giris.get()
+        if ifade.strip() == "":
+            raise ValueError("Boş giriş")
+        deger = eval(ifade)
+        if deger < 0:
+            raise ValueError("Negatif sayı")
+        sonuc = math.sqrt(deger)
         giris.delete(0, "end")
         giris.insert(0, str(sonuc))
     except:
         giris.delete(0, "end")
         giris.insert(0, "HATA")
+def pi_ekle():
+    tus_sesi_cal()
+    giris.insert("end", str(math.pi))
+
+def e_ekle():
+    tus_sesi_cal()
+    giris.insert("end", str(math.e))
+
+def us_alma():
+    tus_sesi_cal()
+    giris.insert("end", "**")
+
+
 
 def faktoriyel():
     tus_sesi_cal()
     try:
-        sonuc = math.factorial(int(eval(giris.get())))
+        ifade = giris.get()
+        if ifade.strip() == "":
+            raise ValueError("Boş giriş")
+        deger = int(eval(ifade))
+        if deger < 0:
+            raise ValueError("Negatif sayı")
+        sonuc = math.factorial(deger)
         giris.delete(0, "end")
         giris.insert(0, str(sonuc))
     except:
@@ -265,10 +290,23 @@ olustur_buton(hafiza_frame, "M+", hafizaya_ekle, tur="yardimci").pack(side="left
 olustur_buton(hafiza_frame, "MR", hafizayi_getir, tur="yardimci").pack(side="left", padx=5)
 olustur_buton(hafiza_frame, "MC", hafizayi_temizle, tur="yardimci").pack(side="left", padx=5)
 
-# Bilimsel Frame
+# Bilimsel Frame (BAŞLANGIÇTA GÖRÜNMEYECEK)
 bilimsel_frame = ctk.CTkFrame(app, fg_color="transparent")
-olustur_buton(bilimsel_frame, "√", karekok, tur="operator").pack(side="left", padx=5)
-olustur_buton(bilimsel_frame, "n!", faktoriyel, tur="operator").pack(side="left", padx=5)
+# bilimsel_frame.pack(pady=10)  # <-- Bu satır kaldırıldı
+
+# Satır 1
+olustur_buton(bilimsel_frame, "√", karekok, tur="operator").grid(row=0, column=0, padx=5, pady=5)
+olustur_buton(bilimsel_frame, "n!", faktoriyel, tur="operator").grid(row=0, column=1, padx=5, pady=5)
+olustur_buton(bilimsel_frame, "^", us_alma, tur="operator").grid(row=0, column=2, padx=5, pady=5)
+
+# Satır 2
+olustur_buton(bilimsel_frame, "π", pi_ekle, tur="operator").grid(row=1, column=0, padx=5, pady=5)
+olustur_buton(bilimsel_frame, "e", e_ekle, tur="operator").grid(row=1, column=1, padx=5, pady=5)
+
+
+
+
+
 
 # Sayı ve İşlem Tuşları
 butonlar = [
