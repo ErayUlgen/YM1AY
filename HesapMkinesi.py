@@ -180,6 +180,38 @@ def e_ekle():
 def us_alma():
     tus_sesi_cal()
     giris.insert("end", "**")
+def log_al():
+    tus_sesi_cal()
+    try:
+        ifade = giris.get()
+        if ifade.strip() == "":
+            raise ValueError("Boş giriş")
+        deger = eval(ifade)
+        if deger <= 0:
+            raise ValueError("Negatif veya sıfır")
+        sonuc = math.log10(deger)
+        giris.delete(0, "end")
+        giris.insert(0, str(sonuc))
+    except:
+        giris.delete(0, "end")
+        giris.insert(0, "HATA")
+
+def ln_al():
+    tus_sesi_cal()
+    try:
+        ifade = giris.get()
+        if ifade.strip() == "":
+            raise ValueError("Boş giriş")
+        deger = eval(ifade)
+        if deger <= 0:
+            raise ValueError("Negatif veya sıfır")
+        sonuc = math.log(deger)
+        giris.delete(0, "end")
+        giris.insert(0, str(sonuc))
+    except:
+        giris.delete(0, "end")
+        giris.insert(0, "HATA")
+
 
 
 
@@ -292,7 +324,6 @@ olustur_buton(hafiza_frame, "MC", hafizayi_temizle, tur="yardimci").pack(side="l
 
 # Bilimsel Frame (BAŞLANGIÇTA GÖRÜNMEYECEK)
 bilimsel_frame = ctk.CTkFrame(app, fg_color="transparent")
-# bilimsel_frame.pack(pady=10)  # <-- Bu satır kaldırıldı
 
 # Satır 1
 olustur_buton(bilimsel_frame, "√", karekok, tur="operator").grid(row=0, column=0, padx=5, pady=5)
@@ -302,6 +333,12 @@ olustur_buton(bilimsel_frame, "^", us_alma, tur="operator").grid(row=0, column=2
 # Satır 2
 olustur_buton(bilimsel_frame, "π", pi_ekle, tur="operator").grid(row=1, column=0, padx=5, pady=5)
 olustur_buton(bilimsel_frame, "e", e_ekle, tur="operator").grid(row=1, column=1, padx=5, pady=5)
+
+
+# Satır 3 (Yeni log ve ln)
+olustur_buton(bilimsel_frame, "log", log_al, tur="operator").grid(row=2, column=0, padx=5, pady=5)
+olustur_buton(bilimsel_frame, "ln", ln_al, tur="operator").grid(row=2, column=1, padx=5, pady=5)
+
 
 
 
