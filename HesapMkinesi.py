@@ -169,6 +169,38 @@ def karekok():
     except:
         giris.delete(0, "end")
         giris.insert(0, "HATA")
+def mutlak_deger():
+    tus_sesi_cal()
+    try:
+        ifade = giris.get()
+        if ifade.strip() == "":
+            raise ValueError("Boş giriş")
+        deger = eval(ifade)
+        sonuc = abs(deger)
+        giris.delete(0, "end")
+        giris.insert(0, str(sonuc))
+    except:
+        giris.delete(0, "end")
+        giris.insert(0, "HATA")
+def olustur_buton_kucuk(parent, text, command, tur="sayi", genislik=39):
+    renk = temalar[mevcut_tema_index][tur]
+    btn = ctk.CTkButton(parent, text=text, font=("Helvetica", 14), width=genislik, height=39,
+                        corner_radius=20, fg_color=renk[0], hover_color=renk[1],
+                        text_color=renk[2], command=command)
+
+    def on_press(event):
+        btn.configure(fg_color=renk[1])
+        btn.configure(width=genislik - 4, height=36)
+
+    def on_release(event):
+        btn.configure(fg_color=renk[0])
+        btn.configure(width=genislik, height=39)
+
+    btn.bind("<ButtonPress-1>", on_press)
+    btn.bind("<ButtonRelease-1>", on_release)
+    buton_referanslari.append((btn, tur))
+    return btn
+
 def pi_ekle():
     tus_sesi_cal()
     giris.insert("end", str(math.pi))
@@ -322,22 +354,18 @@ olustur_buton(hafiza_frame, "M+", hafizaya_ekle, tur="yardimci").pack(side="left
 olustur_buton(hafiza_frame, "MR", hafizayi_getir, tur="yardimci").pack(side="left", padx=5)
 olustur_buton(hafiza_frame, "MC", hafizayi_temizle, tur="yardimci").pack(side="left", padx=5)
 
-# Bilimsel Frame (BAŞLANGIÇTA GÖRÜNMEYECEK)
+# Bilimsel Frame (Yeniden oluşturulmuş ve düzenlenmiş)
 bilimsel_frame = ctk.CTkFrame(app, fg_color="transparent")
 
-# Satır 1
-olustur_buton(bilimsel_frame, "√", karekok, tur="operator").grid(row=0, column=0, padx=5, pady=5)
-olustur_buton(bilimsel_frame, "n!", faktoriyel, tur="operator").grid(row=0, column=1, padx=5, pady=5)
-olustur_buton(bilimsel_frame, "^", us_alma, tur="operator").grid(row=0, column=2, padx=5, pady=5)
+bilimsel_fonksiyonlar = [
+    [("√", karekok), ("n!", faktoriyel), ("^", us_alma), ("|x|", mutlak_deger)],
+    [("π", pi_ekle), ("e", e_ekle), ("(", lambda: tikla("(")), (")", lambda: tikla(")"))],
+    [("log", log_al), ("ln", ln_al)]
+]
 
-# Satır 2
-olustur_buton(bilimsel_frame, "π", pi_ekle, tur="operator").grid(row=1, column=0, padx=5, pady=5)
-olustur_buton(bilimsel_frame, "e", e_ekle, tur="operator").grid(row=1, column=1, padx=5, pady=5)
-
-
-# Satır 3 (Yeni log ve ln)
-olustur_buton(bilimsel_frame, "log", log_al, tur="operator").grid(row=2, column=0, padx=5, pady=5)
-olustur_buton(bilimsel_frame, "ln", ln_al, tur="operator").grid(row=2, column=1, padx=5, pady=5)
+for i, satir in enumerate(bilimsel_fonksiyonlar):
+    for j, (metin, komut) in enumerate(satir):
+        olustur_buton_kucuk(bilimsel_frame, metin, komut, tur="operator").grid(row=i, column=j, padx=3, pady=3)
 
 
 
