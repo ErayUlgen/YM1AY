@@ -243,7 +243,32 @@ def ln_al():
     except:
         giris.delete(0, "end")
         giris.insert(0, "HATA")
-
+def mutlak_al():
+    tus_sesi_cal()
+    try:
+        ifade = giris.get()
+        if ifade.strip() == "":
+            raise ValueError("Boş giriş")
+        deger = eval(ifade)
+        sonuc = abs(deger)
+        giris.delete(0, "end")
+        giris.insert(0, str(sonuc))
+    except:
+        giris.delete(0, "end")
+        giris.insert(0, "HATA")
+def kare_al():
+    tus_sesi_cal()
+    try:
+        ifade = giris.get()
+        if ifade.strip() == "":
+            raise ValueError("Boş giriş")
+        deger = eval(ifade)
+        sonuc = deger ** 2
+        giris.delete(0, "end")
+        giris.insert(0, str(sonuc))
+    except:
+        giris.delete(0, "end")
+        giris.insert(0, "HATA")
 
 
 
@@ -360,8 +385,9 @@ bilimsel_frame = ctk.CTkFrame(app, fg_color="transparent")
 bilimsel_fonksiyonlar = [
     [("√", karekok), ("n!", faktoriyel), ("^", us_alma), ("|x|", mutlak_deger)],
     [("π", pi_ekle), ("e", e_ekle), ("(", lambda: tikla("(")), (")", lambda: tikla(")"))],
-    [("log", log_al), ("ln", ln_al)]
+    [("log", log_al), ("ln", ln_al), ("x²", kare_al)]
 ]
+
 
 for i, satir in enumerate(bilimsel_fonksiyonlar):
     for j, (metin, komut) in enumerate(satir):
