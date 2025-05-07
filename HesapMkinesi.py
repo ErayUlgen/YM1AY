@@ -8,6 +8,7 @@ ses_durum = True
 memory = None
 bilimsel_aktif = False
 
+
 # Tema ayarları
 ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("green")
@@ -21,6 +22,31 @@ tema_buton_text = ctk.StringVar(value="🌙 Tema")
 ses_buton_text = ctk.StringVar(value="🔊 Ses")
 bilimsel_buton_text = ctk.StringVar(value="🔬 Bilimsel")
 hafiza_text = ctk.StringVar(value="")
+
+gecmis_listesi = []
+
+
+gecmis_frame = ctk.CTkFrame(app, fg_color="transparent")
+gecmis_frame.pack(pady=5)
+
+gecmis_label = ctk.CTkLabel(gecmis_frame, text="📜 Geçmiş", font=("Helvetica", 16))
+gecmis_label.pack()
+
+gecmis_kutusu = ctk.CTkTextbox(gecmis_frame, width=300, height=120, corner_radius=10, font=("Helvetica", 14))
+gecmis_kutusu.pack()
+
+def gecmisi_guncelle():
+    gecmis_kutusu.delete("0.0", "end")
+    for kayit in reversed(gecmis_listesi[-10:]):  # Son 10 işlem
+        gecmis_kutusu.insert("end", kayit + "\n")
+
+def gecmisi_temizle():
+    gecmis_listesi.clear()
+    gecmisi_guncelle()
+
+temizle_btn = ctk.CTkButton(gecmis_frame, text="🧹 Temizle", width=100, command=gecmisi_temizle)
+temizle_btn.pack(pady=3)
+
 
 temalar = [
     {
@@ -111,12 +137,18 @@ def temizle():
 def hesapla(event=None):
     tus_sesi_cal()
     try:
-        sonuc = eval(giris.get())
+        ifade = giris.get()
+        sonuc = eval(ifade)
         giris.delete(0, "end")
         giris.insert(0, str(sonuc))
+        kayit = f"{ifade} = {sonuc}"
+        gecmis_listesi.append(kayit)
+        gecmisi_guncelle()
     except:
         giris.delete(0, "end")
         giris.insert(0, "HATA")
+
+
 
 def geri_sil():
     tus_sesi_cal()
