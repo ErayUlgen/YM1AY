@@ -1,7 +1,7 @@
 import customtkinter as ctk
 import pygame
 import math
-
+from datetime import datetime  # Tarih ve saat için ekledik
 # Ses başlatma
 pygame.mixer.init()
 ses_durum = True
@@ -16,37 +16,14 @@ ctk.set_default_color_theme("green")
 app = ctk.CTk()
 app.geometry("350x700")
 app.title("🧲 Modern Hesap Makinesi")
+saat_label = ctk.CTkLabel(app, font=("Arial", 24))
+saat_label.pack(padx=20, pady=20)
 
 mevcut_tema_index = 0
 tema_buton_text = ctk.StringVar(value="🌙 Tema")
 ses_buton_text = ctk.StringVar(value="🔊 Ses")
 bilimsel_buton_text = ctk.StringVar(value="🔬 Bilimsel")
 hafiza_text = ctk.StringVar(value="")
-
-gecmis_listesi = []
-
-
-gecmis_frame = ctk.CTkFrame(app, fg_color="transparent")
-gecmis_frame.pack(pady=5)
-
-gecmis_label = ctk.CTkLabel(gecmis_frame, text="📜 Geçmiş", font=("Helvetica", 16))
-gecmis_label.pack()
-
-gecmis_kutusu = ctk.CTkTextbox(gecmis_frame, width=300, height=120, corner_radius=10, font=("Helvetica", 14))
-gecmis_kutusu.pack()
-
-def gecmisi_guncelle():
-    gecmis_kutusu.delete("0.0", "end")
-    for kayit in reversed(gecmis_listesi[-10:]):  # Son 10 işlem
-        gecmis_kutusu.insert("end", kayit + "\n")
-
-def gecmisi_temizle():
-    gecmis_listesi.clear()
-    gecmisi_guncelle()
-
-temizle_btn = ctk.CTkButton(gecmis_frame, text="🧹 Temizle", width=100, command=gecmisi_temizle)
-temizle_btn.pack(pady=3)
-
 
 temalar = [
     {
@@ -95,6 +72,16 @@ temalar = [
     }
 ]
 
+def guncelle_saat():
+    current_time = datetime.now().strftime("%H:%M:%S")
+    current_date = datetime.now().strftime("%d-%m-%Y")
+    saat_label.configure(text=f"{current_time}\n{current_date}")  # Configure kullanarak saat güncellenir
+    app.after(1000, guncelle_saat)  # 1 saniyede bir fonksiyonu tekrar çağır
+
+# İlk saat güncellemesi
+guncelle_saat()
+
+
 def tus_sesi_cal():
     if ses_durum:
         try:
@@ -137,18 +124,14 @@ def temizle():
 def hesapla(event=None):
     tus_sesi_cal()
     try:
-        ifade = giris.get()
-        sonuc = eval(ifade)
+        sonuc = eval(giris.get())
+        gecmis.append(f"{giris.get()} = {sonuc}")
+
         giris.delete(0, "end")
         giris.insert(0, str(sonuc))
-        kayit = f"{ifade} = {sonuc}"
-        gecmis_listesi.append(kayit)
-        gecmisi_guncelle()
     except:
         giris.delete(0, "end")
         giris.insert(0, "HATA")
-
-
 
 def geri_sil():
     tus_sesi_cal()
@@ -452,4 +435,34 @@ for satir in butonlar:
         b.pack(side="left", padx=5)
 
 guncelle_tema()
+gecmis = []
+gecmis_panel_aktif = False
+
+def gecmis_mod_degistir():
+    global gecmis_panel_aktif
+    tus_sesi_cal()
+    if gecmis_panel_aktif:
+        gecmis_frame.pack_forget()
+        gecmis_panel_aktif = False
+    else:
+        guncelle_gecmis()
+        gecmis_frame.pack(side="left", padx=10, pady=20, anchor="center")
+        gecmis_panel_aktif = True
+def guncelle_gecmis():
+    gecmis_textbox.configure(state="normal")
+    gecmis_textbox.delete("0.0", "end")
+    for satir in gecmis:
+        gecmis_textbox.insert("end", satir + "\n")
+    gecmis_textbox.configure(state="disabled")
+
+# Geçmiş paneli için çerçeve ve metin kutusu
+gecmis_frame = ctk.CTkFrame(app, fg_color="white", width=300, height=200, corner_radius=10)
+gecmis_textbox = ctk.CTkTextbox(gecmis_frame, width=280, height=180, font=("Helvetica", 14), wrap="none")
+gecmis_textbox.pack(padx=10, pady=10)
+gecmis_textbox.configure(state="disabled")
+
+# İsteğe bağlı: Geçmişi göster/gizle butonu
+ctk.CTkButton(app, text="🕓 Geçmiş", command=gecmis_mod_degistir).pack(pady=5)
+
+
 app.mainloop()
