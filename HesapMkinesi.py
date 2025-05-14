@@ -1,24 +1,23 @@
 import customtkinter as ctk
 import pygame
 import math
-from datetime import datetime  # Tarih ve saat için ekledik
+from datetime import datetime
 # Ses başlatma
 pygame.mixer.init()
 ses_durum = True
 memory = None
 bilimsel_aktif = False
 
-
 # Tema ayarları
 ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("green")
 
 app = ctk.CTk()
-app.geometry("350x700")
-app.title("🧲 Modern Hesap Makinesi")
-saat_label = ctk.CTkLabel(app, font=("Arial", 24))
-saat_label.pack(padx=20, pady=20)
+app.geometry("500x800")  # Yüksekliği artır, örnek olarak
 
+app.title("🧲 Modern Hesap Makinesi")
+saat_label = ctk.CTkLabel(app, text="", font=("Helvetica", 12))
+saat_label.pack(pady=2)
 mevcut_tema_index = 0
 tema_buton_text = ctk.StringVar(value="🌙 Tema")
 ses_buton_text = ctk.StringVar(value="🔊 Ses")
@@ -72,16 +71,6 @@ temalar = [
     }
 ]
 
-def guncelle_saat():
-    current_time = datetime.now().strftime("%H:%M:%S")
-    current_date = datetime.now().strftime("%d-%m-%Y")
-    saat_label.configure(text=f"{current_time}\n{current_date}")  # Configure kullanarak saat güncellenir
-    app.after(1000, guncelle_saat)  # 1 saniyede bir fonksiyonu tekrar çağır
-
-# İlk saat güncellemesi
-guncelle_saat()
-
-
 def tus_sesi_cal():
     if ses_durum:
         try:
@@ -103,7 +92,12 @@ def ses_degistir():
     ses_durum = not ses_durum
     tus_sesi_cal()
     ses_buton_text.set("🔇 Ses" if not ses_durum else "🔊 Ses")
-
+def saati_guncelle():
+    simdi = datetime.now()
+    saat_metin = simdi.strftime("%d.%m.%Y | %H:%M:%S")
+    saat_label.configure(text=saat_metin)
+    app.after(1000, saati_guncelle)  # Her 1 saniyede bir güncelle
+saati_guncelle()  # İlk çağrı
 def guncelle_tema():
     tema = temalar[mevcut_tema_index]
     app.configure(fg_color=tema["bg"])
@@ -284,6 +278,48 @@ def kare_al():
     except:
         giris.delete(0, "end")
         giris.insert(0, "HATA")
+def open_unit_converter():
+    converter_window = ctk.CTkToplevel()
+    converter_window.title("Birim Dönüştürücü")
+    converter_window.geometry("300x320")
+    converter_window.resizable(False, False)
+
+    ctk.CTkLabel(converter_window, text="Dönüştürme Türü:").pack(pady=10)
+    conversion_type = ctk.CTkComboBox(converter_window, values=["Uzunluk (cm ↔ inç)", "Ağırlık (kg ↔ pound)", "Sıcaklık (°C ↔ °F)"])
+    conversion_type.pack()
+
+    ctk.CTkLabel(converter_window, text="Değer:").pack(pady=10)
+    value_entry = ctk.CTkEntry(converter_window)
+    value_entry.pack()
+
+    result_label = ctk.CTkLabel(converter_window, text="", text_color="lightgreen")
+    result_label.pack(pady=10)
+
+    def convert():
+        try:
+            value = float(value_entry.get())
+            kind = conversion_type.get()
+
+            if kind == "Uzunluk (cm ↔ inç)":
+                converted = f"{value} cm = {value / 2.54:.2f} inç\n{value} inç = {value * 2.54:.2f} cm"
+            elif kind == "Ağırlık (kg ↔ pound)":
+                converted = f"{value} kg = {value * 2.20462:.2f} lb\n{value} lb = {value / 2.20462:.2f} kg"
+            elif kind == "Sıcaklık (°C ↔ °F)":
+                c_to_f = (value * 9/5) + 32
+                f_to_c = (value - 32) * 5/9
+                converted = f"{value} °C = {c_to_f:.2f} °F\n{value} °F = {f_to_c:.2f} °C"
+            else:
+                converted = "Lütfen bir tür seçin."
+            
+            result_label.configure(text=converted)
+        except ValueError:
+            result_label.configure(text="Geçersiz sayı girdiniz!", text_color="red")
+
+    convert_btn = ctk.CTkButton(converter_window, text="Dönüştür", command=convert)
+    convert_btn.pack(pady=10)
+birim_btn = ctk.CTkButton(app, text="Birim Dönüştür", command=open_unit_converter)
+birim_btn.pack(pady=10)  # grid yerine pack kullan!
+
 
 
 
