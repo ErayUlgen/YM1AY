@@ -1,7 +1,13 @@
+
 import customtkinter as ctk
 import pygame
 import math
 from datetime import datetime
+import statistics
+from scipy import stats
+
+
+
 # Ses başlatma
 pygame.mixer.init()
 ses_durum = True
@@ -13,8 +19,7 @@ ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("green")
 
 app = ctk.CTk()
-app.geometry("500x800")  # Yüksekliği artır, örnek olarak
-
+app.geometry("350x700")
 app.title("🧲 Modern Hesap Makinesi")
 saat_label = ctk.CTkLabel(app, text="", font=("Helvetica", 12))
 saat_label.pack(pady=2)
@@ -114,6 +119,7 @@ def tikla(deger):
 def temizle():
     tus_sesi_cal()
     giris.delete(0, "end")
+
 
 def hesapla(event=None):
     tus_sesi_cal()
@@ -317,10 +323,65 @@ def open_unit_converter():
 
     convert_btn = ctk.CTkButton(converter_window, text="Dönüştür", command=convert)
     convert_btn.pack(pady=10)
-birim_btn = ctk.CTkButton(app, text="Birim Dönüştür", command=open_unit_converter)
-birim_btn.pack(pady=10)  # grid yerine pack kullan!
 
+def open_currency_converter():
+    currency_window = ctk.CTkToplevel()
+    currency_window.title("Para Birimi Dönüştürücü")
+    currency_window.geometry("400x300")
 
+    currencies = ["TRY", "USD", "EUR", "GBP"]
+
+    # Örnek sabit dönüşüm oranları (1 birimin karşılığı olarak)
+    rates = {
+        "TRY": {"USD": 0.031, "EUR": 0.029, "GBP": 0.025},
+        "USD": {"TRY": 32.5, "EUR": 0.94, "GBP": 0.82},
+        "EUR": {"TRY": 35.0, "USD": 1.06, "GBP": 0.87},
+        "GBP": {"TRY": 40.0, "USD": 1.22, "EUR": 1.15},
+    }
+
+    def convert_currency():
+        try:
+            amount = float(amount_entry.get())
+            from_curr = from_option.get()
+            to_curr = to_option.get()
+            if from_curr == to_curr:
+                result_label.configure(text=f"Aynı birim: {amount:.2f} {to_curr}")
+                return
+            rate = rates[from_curr][to_curr]
+            result = amount * rate
+            result_label.configure(text=f"Sonuç: {result:.2f} {to_curr}")
+        except Exception as e:
+            result_label.configure(text=f"Hata: {str(e)}")
+
+    # Arayüz öğeleri
+    amount_label = ctk.CTkLabel(currency_window, text="Tutar girin:")
+    amount_label.pack(pady=5)
+    amount_entry = ctk.CTkEntry(currency_window)
+    amount_entry.pack(pady=5)
+
+    from_option = ctk.CTkOptionMenu(currency_window, values=currencies)
+    from_option.set("TRY")
+    from_option.pack(pady=5)
+
+    to_option = ctk.CTkOptionMenu(currency_window, values=currencies)
+    to_option.set("USD")
+    to_option.pack(pady=5)
+
+    convert_button = ctk.CTkButton(currency_window, text="Dönüştür", command=convert_currency)
+    convert_button.pack(pady=10)
+
+    result_label = ctk.CTkLabel(currency_window, text="")
+    result_label.pack(pady=5)
+
+# Üst çubuk: Birim ve Para dönüştürücü butonları
+ust_frame = ctk.CTkFrame(app, fg_color="transparent")
+ust_frame.pack(pady=(10, 0))
+
+birim_button = ctk.CTkButton(ust_frame, text="Birim Dönüştür", command=open_unit_converter)
+birim_button.pack(side="left", padx=10)
+
+para_button = ctk.CTkButton(ust_frame, text="Para Dönüştürücü", command=open_currency_converter)
+para_button.pack(side="left", padx=10)
 
 
 def faktoriyel():
