@@ -13,7 +13,7 @@ pygame.mixer.init()
 ses_durum = True
 memory = None
 bilimsel_aktif = False
-
+scale = 0.6
 # Tema ayarları
 ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("green")
@@ -197,9 +197,9 @@ def mutlak_deger():
     except:
         giris.delete(0, "end")
         giris.insert(0, "HATA")
-def olustur_buton_kucuk(parent, text, command, tur="sayi", genislik=39):
+def olustur_buton_kucuk(parent, text, command, tur="sayi", genislik=20):
     renk = temalar[mevcut_tema_index][tur]
-    btn = ctk.CTkButton(parent, text=text, font=("Helvetica", 14), width=genislik, height=39,
+    btn = ctk.CTkButton(parent, text=text, font=("Helvetica", 14), width=genislik, height=20,
                         corner_radius=20, fg_color=renk[0], hover_color=renk[1],
                         text_color=renk[2], command=command)
 
