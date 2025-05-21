@@ -15,8 +15,7 @@ memory = None
 bilimsel_aktif = False
 scale = 0.6
 x=0.4
-y=0.3
-z=0.2
+
 # Tema ayarları
 ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("green")
