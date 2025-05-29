@@ -14,7 +14,6 @@ ses_durum = True
 memory = None
 bilimsel_aktif = False
 scale = 0.6
-#abc
 # Tema ayarları
 ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("green")
