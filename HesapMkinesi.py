@@ -18,9 +18,6 @@ scale = 0.6
 ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("green")
 #merhabadünya 
-#merhabadünya 
-#merhabadünya 
-#merhabadünya 
 
 app = ctk.CTk()
 app.geometry("350x700")
