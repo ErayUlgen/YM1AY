@@ -17,8 +17,6 @@ scale = 0.6
 # Tema ayarları
 ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("green")
-#merhabadünya 
-
 app = ctk.CTk()
 app.geometry("350x700")
 app.title("🧲 Modern Hesap Makinesi")
