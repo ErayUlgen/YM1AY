@@ -6,9 +6,6 @@ from datetime import datetime
 import statistics
 from scipy import stats
 
-
-
-# Ses başlatma
 pygame.mixer.init()
 ses_durum = True
 memory = None
